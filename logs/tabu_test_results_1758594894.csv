@@ -1,0 +1,4 @@
+Instance,Configuration,Value,Time_Seconds,Feasible,Iterations,Convergence_Iteration
+instance-01.txt,STANDARD,59.00,40,Yes,10000,9
+instance-01.txt,STANDARD+BEST,354.00,41,Yes,10000,18
+instance-01.txt,STANDARD+TENURE,99.00,41,Yes,10000,14
