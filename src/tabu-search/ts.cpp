@@ -6,7 +6,7 @@
 #include "ts.hpp"
 
 TabuSearch::TabuSearch() : tabuTenure(7), maxIterations(1000), timeLimit(1800),
-searchMethod(FIRST_IMPROVING), tabuStrategy(STANDARD), bestValue(-1e9), currentValue(-1e9),
+searchMethod(FIRST_IMPROVING), tabuStrategy(STRATEGIC_OSCILLATION), bestValue(-1e9), currentValue(-1e9),
 iterationsWithoutImprovement(0), totalIterations(0) {
     auto seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     rng.seed(seed);
@@ -213,7 +213,9 @@ vector<TabuSearch::Move> TabuSearch::generateNeighborhood(const SetCoverQBF& scq
         vector<int> testSolution = solution;
         applyMove(testSolution, move);
 
-        if (scqbf.isFeasible(testSolution)) {
+        // Check if the Tabu Search is currently allowing infeasible solutions (i.e. if using Strategic Oscillation)
+        // If not, only accept solution if it is feasible
+        if (isAllowingInfeasibleSolutions || scqbf.isFeasible(testSolution)) {
             neighborhood.push_back(move);
         }
     }
@@ -301,7 +303,7 @@ void TabuSearch::applyTabuStrategy([[maybe_unused]] const SetCoverQBF& scqbf) {
     // The default is to do nothing for the STANDARD strategy.
     // For other strategies, implement the corresponding methods and call them here.
 
-    // switch (tabuStrategy) {
+    switch (tabuStrategy) {
     // case PROBABILISTIC:
     //     applyProbabilisticTS(scqbf);
     //     break;
@@ -314,13 +316,36 @@ void TabuSearch::applyTabuStrategy([[maybe_unused]] const SetCoverQBF& scqbf) {
     // case DIVERSIFICATION_RESTART:
     //     applyDiversificationRestart(scqbf);
     //     break;
-    // case STRATEGIC_OSCILLATION:
-    //     applyStrategicOscillation(scqbf);
-    //     break;
-    // default:
-    //     // Default: Standard Tabu Search
-    //     break;
-    // }
+    case STRATEGIC_OSCILLATION:
+        applyStrategicOscillation(scqbf);
+        break;
+    default:
+        // Default: Standard Tabu Search
+        break;
+    }
+}
+
+
+void TabuSearch::applyStrategicOscillation(const SetCoverQBF& scqbf) {
+    // If the algorythm is iterating without any improvement for a while, create oscillation to allow infeasible solutions
+    // This may allow for better exploration of the search space
+    if (iterationsWithoutImprovement > 60 && !isInOscillationPhase) {
+        isAllowingInfeasibleSolutions = true;
+        isInOscillationPhase = true;
+        oscillationPhaseCounter = 0;
+    }
+
+    if (isInOscillationPhase) {
+        oscillationPhaseCounter += 1;
+
+        // If is already oscillating for a few iterations, end oscillation phase and return to secure and feasible solutions
+        if (oscillationPhaseCounter > 30) {
+            isAllowingInfeasibleSolutions = false;
+            oscillationPhaseCounter = 0;
+            currentSolution = repairSolution(scqbf, currentSolution);
+            currentValue = scqbf.evaluateSolution(currentSolution);
+        }
+    }
 }
 
 double TabuSearch::calculateMoveDelta(const SetCoverQBF& scqbf, const vector<int>& solution, const Move& move) const {
