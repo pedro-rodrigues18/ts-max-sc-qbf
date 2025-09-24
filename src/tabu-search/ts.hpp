@@ -19,7 +19,8 @@ public:
     };
 
     enum TabuStrategy {
-        STANDARD
+        STANDARD,
+        STRATEGIC_OSCILLATION
     };
 
     struct Move {
@@ -66,6 +67,11 @@ private:
     int totalIterations;
     vector<double> valueHistory;       // History of values for analysis
     vector<int> frequencyMatrix;       // Frequency matrix for diversification
+
+    // Parameters used in Strategic Oscillation
+    bool isAllowingInfeasibleSolutions;     // Flag to allow infeasible solutions for a while when executing Strategic Oscillation
+    bool isInOscillationPhase;
+    int oscillationPhaseCounter;
 
     mutable mt19937 rng;               // Random number generator
 
@@ -121,6 +127,7 @@ private:
 
     // Alternative tabu strategies
     void applyTabuStrategy(const SetCoverQBF& scqbf);
+    void TabuSearch::applyStrategicOscillation(const SetCoverQBF& scqbf);
 
     // Auxiliary methods
     double calculateMoveDelta(const SetCoverQBF& scqbf, const vector<int>& solution, const Move& move) const;
