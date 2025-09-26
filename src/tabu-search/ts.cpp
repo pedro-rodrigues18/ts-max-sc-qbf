@@ -257,16 +257,6 @@ void TabuSearch::applyIntensificationRestart(const SetCoverQBF& scqbf) {
     }
 }
 
-void TabuSearch::applyTabuStrategy(const SetCoverQBF& scqbf) {
-    switch (tabuStrategy) {
-    case INTENSIFICATION_RESTART:
-        applyIntensificationRestart(scqbf);
-        break;
-    default:
-        break;
-    }
-}
-
 TabuSearch::Move TabuSearch::selectMove(const SetCoverQBF& scqbf, const vector<Move>& moves) {
     switch (searchMethod) {
     case BEST_IMPROVING:
@@ -348,18 +338,9 @@ void TabuSearch::applyTabuStrategy([[maybe_unused]] const SetCoverQBF& scqbf) {
     // For other strategies, implement the corresponding methods and call them here.
 
     switch (tabuStrategy) {
-    // case PROBABILISTIC:
-    //     applyProbabilisticTS(scqbf);
-    //     break;
-    // case INTENSIFICATION_RESTART:
-    //     applyIntensificationRestart(scqbf);
-    //     break;
-    // case INTENSIFICATION_NEIGHBORHOOD:
-    //     applyIntensificationNeighborhood(scqbf);
-    //     break;
-    // case DIVERSIFICATION_RESTART:
-    //     applyDiversificationRestart(scqbf);
-    //     break;
+    case INTENSIFICATION_RESTART:
+        applyIntensificationRestart(scqbf);
+        break;
     case STRATEGIC_OSCILLATION:
         applyStrategicOscillation(scqbf);
         break;

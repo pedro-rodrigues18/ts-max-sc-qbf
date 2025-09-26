@@ -131,7 +131,7 @@ private:
 
     // Alternative tabu strategies
     void applyTabuStrategy(const SetCoverQBF& scqbf);
-    void TabuSearch::applyStrategicOscillation(const SetCoverQBF& scqbf);
+    void applyStrategicOscillation(const SetCoverQBF& scqbf);
 
     // Auxiliary methods
     double calculateMoveDelta(const SetCoverQBF& scqbf, const vector<int>& solution, const Move& move) const;

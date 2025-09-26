@@ -74,6 +74,40 @@ TabuExperimentResult runSingleConfig(const std::string& instPath, const std::str
     return r;
 }
 
+void logResults(const std::string& instName, const std::string& baseName, const std::vector<TabuExperimentResult>& local_results) {
+    std::ofstream log("logs/" + baseName + ".log");
+
+    log << "Running Tabu Search on instance: " << instName << "\n";
+    log << "Configurations tested: " << local_results.size() << "\n\n";
+
+    const std::string indent = "    ";
+
+    log << indent
+        << std::left 
+        << std::setw(27) << "Configuration"
+        << std::setw(12) << "Value"
+        << std::setw(10) << "Time(s)"
+        << std::setw(10) << "Feasible"
+        << std::setw(8) << "Iter"
+        << std::setw(8) << "Conv Iter" << std::endl;
+
+    log << indent << std::string(76, '-') << std::endl;
+
+    for (const auto& r : local_results) {
+        log << indent
+            << std::left 
+            << std::setw(27) << r.config
+            << std::setw(12) << std::fixed << std::setprecision(2) << r.value
+            << std::setw(10) << std::setprecision(1) << r.time_seconds
+            << std::setw(10) << (r.feasible ? "Yes" : "No")
+            << std::setw(8) << r.iterations_completed
+            << std::setw(8) << r.convergence_iteration << std::endl;
+    }
+
+    log.close();
+}
+
+
 void runInstance(const std::string& instPath, const std::string& instName) {
     int T1 = 7;   // Small tabu tenure
     int T2 = 15;  // Large tabu tenure
@@ -82,6 +116,7 @@ void runInstance(const std::string& instPath, const std::string& instName) {
         {"STANDARD", TabuSearch::FIRST_IMPROVING, TabuSearch::STANDARD, T1},
         {"STANDARD+BEST", TabuSearch::BEST_IMPROVING, TabuSearch::STANDARD, T1},
         {"STANDARD+TENURE", TabuSearch::FIRST_IMPROVING, TabuSearch::STANDARD, T2},
+        {"STRATEGIC_OSCILLATION", TabuSearch::FIRST_IMPROVING, TabuSearch::STRATEGIC_OSCILLATION, T1},
         {"INTENSIFICATION_RESTART", TabuSearch::FIRST_IMPROVING, TabuSearch::INTENSIFICATION_RESTART, T1}
     };
 
@@ -98,29 +133,20 @@ void runInstance(const std::string& instPath, const std::string& instName) {
     for (auto& f : futures) local_results.push_back(f.get());
 
     // Save log file
-    std::ofstream log("logs/" + baseName + ".log");
-    log << "Running Tabu Search on instance: " << instName << "\n";
-    log << "Configurations tested: " << configs.size() << "\nResults:\n";
-    for (auto& r : local_results) {
-        log << r.config << " -> Value=" << r.value
-            << " Time=" << r.time_seconds << "s"
-            << " Feasible=" << (r.feasible ? "Yes" : "No")
-            << " Iterations=" << r.iterations_completed
-            << " Convergence=" << r.convergence_iteration << "\n";
-    }
+    logResults(instName, baseName, local_results);
 
     // Show results on screen
     std::cout << "\n=== RESULTS FOR " << instName << " ===" << std::endl;
-    std::cout << std::left << std::setw(18) << "Configuration"
+    std::cout << std::left << std::setw(27) << "Configuration"
         << std::setw(12) << "Value"
         << std::setw(10) << "Time(s)"
         << std::setw(10) << "Feasible"
         << std::setw(8) << "Iter"
-        << std::setw(8) << "Conv" << std::endl;
-    std::cout << std::string(66, '-') << std::endl;
+        << std::setw(8) << "Conv Iter" << std::endl;
+    std::cout << std::string(76, '-') << std::endl;
 
     for (auto& r : local_results) {
-        std::cout << std::left << std::setw(18) << r.config
+        std::cout << std::left << std::setw(27) << r.config
             << std::setw(12) << std::fixed << std::setprecision(2) << r.value
             << std::setw(10) << r.time_seconds
             << std::setw(10) << (r.feasible ? "Yes" : "No")
@@ -135,8 +161,8 @@ void runInstance(const std::string& instPath, const std::string& instName) {
 }
 
 void runAllInstances(const std::vector<std::string>& instances) {
-    // std::max(1u, std::thread::hardware_concurrency());
-    unsigned int num_threads = 1; // Sequential for testing 
+    unsigned int num_threads = std::max(1u, std::thread::hardware_concurrency());
+    // unsigned int num_threads = 1;
     std::cout << "Using " << num_threads << " thread(s).\n";
 
     std::atomic<size_t> next(0);
@@ -179,7 +205,7 @@ int main() {
     std::cout << "Instances found: " << instances.size() << std::endl;
 
     // Test mode: run only one instance
-    bool test = true;
+    bool test = false;
 
     if (test && !instances.empty()) {
         std::string instance = instances[0];

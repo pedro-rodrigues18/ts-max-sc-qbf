@@ -1,6 +1,10 @@
 Running Tabu Search on instance: instance-01.txt
-Configurations tested: 3
-Results:
-STANDARD -> Value=59 Time=40s Feasible=Yes Iterations=10000 Convergence=9
-STANDARD+BEST -> Value=354 Time=41s Feasible=Yes Iterations=10000 Convergence=18
-STANDARD+TENURE -> Value=99 Time=41s Feasible=Yes Iterations=10000 Convergence=14
+Configurations tested: 5
+
+    Configuration              Value       Time(s)   Feasible  Iter    Conv Iter
+    ----------------------------------------------------------------------------
+    STANDARD                   59.00       84        Yes       10000   9.0     
+    STANDARD+BEST              354.00      99        Yes       10000   18.0    
+    STANDARD+TENURE            99.00       96        Yes       10000   14.0    
+    STRATEGIC_OSCILLATION      59.00       85        Yes       10000   9.0     
+    INTENSIFICATION_RESTART    354.00      97        Yes       10000   9512.0  
