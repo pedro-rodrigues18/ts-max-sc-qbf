@@ -20,7 +20,8 @@ public:
 
     enum TabuStrategy {
         STANDARD,
-        STRATEGIC_OSCILLATION
+        STRATEGIC_OSCILLATION,
+        INTENSIFICATION_RESTART
     };
 
     struct Move {
@@ -75,6 +76,9 @@ private:
 
     mutable mt19937 rng;               // Random number generator
 
+private:
+    void applyIntensificationRestart(const SetCoverQBF& scqbf);
+    
 public:
     TabuSearch();
     TabuSearch(int tenure, int maxIter, int timeLimit,

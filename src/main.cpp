@@ -81,7 +81,8 @@ void runInstance(const std::string& instPath, const std::string& instName) {
     std::vector<std::tuple<std::string, TabuSearch::SearchMethod, TabuSearch::TabuStrategy, int>> configs = {
         {"STANDARD", TabuSearch::FIRST_IMPROVING, TabuSearch::STANDARD, T1},
         {"STANDARD+BEST", TabuSearch::BEST_IMPROVING, TabuSearch::STANDARD, T1},
-        {"STANDARD+TENURE", TabuSearch::FIRST_IMPROVING, TabuSearch::STANDARD, T2}
+        {"STANDARD+TENURE", TabuSearch::FIRST_IMPROVING, TabuSearch::STANDARD, T2},
+        {"INTENSIFICATION_RESTART", TabuSearch::FIRST_IMPROVING, TabuSearch::INTENSIFICATION_RESTART, T1}
     };
 
     std::string baseName = instName.substr(0, instName.find_last_of("."));

@@ -223,6 +223,50 @@ vector<TabuSearch::Move> TabuSearch::generateNeighborhood(const SetCoverQBF& scq
     return neighborhood;
 }
 
+// In ts.cpp, add the new method:
+
+void TabuSearch::applyIntensificationRestart(const SetCoverQBF& scqbf) {
+    const int RESTART_THRESHOLD = 100; 
+    const double INTENSIFICATION_RATE = 0.8;
+
+    if (iterationsWithoutImprovement >= RESTART_THRESHOLD) {
+        cout << "Applying intensification restart..." << endl;
+
+        vector<int> newSolution = bestSolution;
+        int numVars = static_cast<int>(newSolution.size());
+        int numToFlip = static_cast<int>((1.0 - INTENSIFICATION_RATE) * numVars);
+
+        uniform_int_distribution<int> dist(0, numVars - 1);
+        for (int i = 0; i < numToFlip; i++) {
+            int idx = dist(rng);
+            newSolution[idx] = 1 - newSolution[idx];
+        }
+
+        if (needsRepair(scqbf, newSolution)) {
+            newSolution = repairSolution(scqbf, newSolution);
+        }
+
+        currentSolution = newSolution;
+        currentValue = scqbf.evaluateSolution(currentSolution);
+
+        tabuList.clear();
+        tabuSet.clear();
+        iterationsWithoutImprovement = 0;
+
+        cout << "Restarted. New current value: " << currentValue << endl;
+    }
+}
+
+void TabuSearch::applyTabuStrategy(const SetCoverQBF& scqbf) {
+    switch (tabuStrategy) {
+    case INTENSIFICATION_RESTART:
+        applyIntensificationRestart(scqbf);
+        break;
+    default:
+        break;
+    }
+}
+
 TabuSearch::Move TabuSearch::selectMove(const SetCoverQBF& scqbf, const vector<Move>& moves) {
     switch (searchMethod) {
     case BEST_IMPROVING:
