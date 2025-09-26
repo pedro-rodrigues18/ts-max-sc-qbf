@@ -1,0 +1,10 @@
+Running Tabu Search on instance: instance-05.txt
+Configurations tested: 5
+
+    Configuration              Value       Time(s)   Feasible  Iter    Conv Iter
+    ----------------------------------------------------------------------------
+    STANDARD                   136.00      230       Yes       10000   19.0    
+    STANDARD+BEST              677.00      352       Yes       10000   38.0    
+    STANDARD+TENURE            677.00      335       Yes       10000   38.0    
+    STRATEGIC_OSCILLATION      677.00      330       Yes       10000   38.0    
+    INTENSIFICATION_RESTART    677.00      347       Yes       10000   38.0    
